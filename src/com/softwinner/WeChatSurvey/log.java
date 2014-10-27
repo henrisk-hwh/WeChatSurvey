@@ -1,4 +1,4 @@
-package com.softwinner.MicroMSGSurvey;
+package com.softwinner.WeChatSurvey;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
