@@ -27,7 +27,7 @@ import org.dom4j.Element;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
-public class MicroMSGSurvey extends HttpServlet{
+public class WeChatSurvey extends HttpServlet{
 	
 	public static final String TOKEN = "henrisktest";
 	public static final String CONTENT_TYPE="text/html;charset=utf-8";
@@ -84,15 +84,17 @@ public class MicroMSGSurvey extends HttpServlet{
 			if(null != echostr || !echostr.isEmpty()){
 				resp.setContentType(CONTENT_TYPE);//设置响应类型
 				PrintWriter out=resp.getWriter();//得到输出流对象
-				out.println(echostr);				
+				out.println(echostr);
 			}
 			else{
 				//echostr为空，普通的请求
 				
 			}
+			System.out.println("==================== doGet end ====================");
 			return;	
 		}
 		String cmd = req.getParameter("cmd");
+		log.d("cmd: "+cmd);
 		if(cmd != null){
 			resp.setContentType(CONTENT_TYPE);//设置响应类型
 			PrintWriter out=resp.getWriter();//得到输出流对象

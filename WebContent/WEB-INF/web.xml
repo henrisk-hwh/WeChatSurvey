@@ -11,12 +11,12 @@
   </welcome-file-list>
   
   <servlet>
-    <servlet-name>MicroMSGSurvey</servlet-name>
-    <servlet-class>com.softwinner.MicroMSGSurvey.MicroMSGSurvey</servlet-class>  
+    <servlet-name>WeChatSurvey</servlet-name>
+    <servlet-class>com.softwinner.WeChatSurvey.WeChatSurvey</servlet-class>  
   </servlet>
 
   <servlet-mapping>
-    <servlet-name>MicroMSGSurvey</servlet-name>
-    <url-pattern>/MicroMSGSurvey</url-pattern>
+    <servlet-name>WeChatSurvey</servlet-name>
+    <url-pattern>/WeChatSurvey</url-pattern>
   </servlet-mapping>
 </web-app>
