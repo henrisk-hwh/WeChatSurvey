@@ -134,6 +134,15 @@ public class WeChatSurvey extends HttpServlet{
 				respondStr = mWeChat.getQrcode(device_id);
 				msg = "device_id: "+ device_id;
 				cmd = "获取二维码";
+				break;
+			case "setactiontime":
+				String second = req.getParameter("actiontime");
+				log.d("second: "+ second+" device_id "+device_id);
+				WeChatDevice device = getDeivcebyDeviceID(device_id);
+				if(device != null)
+					device.setActionSecond(Integer.parseInt(second));
+				break;
+				
 			}
 			out.println("<html>");
 			out.println("<body>");
@@ -215,7 +224,17 @@ public class WeChatSurvey extends HttpServlet{
 					String id = null;
 					if(device != null)
 						id = device.getDeviceID();
-					contentStr = "当前关在设备id：" + id;
+					contentStr = "当前关注设备id：" + id;
+					break;						
+				}
+				case "getactiontime":{
+					WeChatDevice device = getDeivcebyOpenID(fromUsername);
+					log.d("device id: "+device.getDeviceID());
+					int second = device.getActionSecond();
+					if(second > 0)
+						contentStr = "设备还有 "+ second + "秒 完成动作";
+					else
+						contentStr = "设备当前没有动作";
 					break;						
 				}
 				default: 
@@ -239,51 +258,9 @@ public class WeChatSurvey extends HttpServlet{
 			log.d("optype:       " + optype);
 			log.d("openid:       " + openid);
 			
-			switch(event){
-				case WeChatDevice.SUBSCRIBE_STATUS:{
-					//进入公众号界面请求
-					WeChatDevice device = getDeivcebyDeviceID(deviceid);
-					 log.d("device "+ device);
-					 if(device == null){
-						 //如果list中没有device则加入
-						 addDeivcebyDeivceID(deviceid);
-					 }
-					 else if(!device.getSynchronize()){
-						 //如果需要同步则同步
-						 synchronized (device) {
-							 //涉及到里面设备对象，必须要加锁操作
-							 mWeChat.syncDeviceInfo(device, DEVICE_TYPE);
-							 device.dump("SUBSCRIBE_STATUS");							
-						 }
-					 }			
-					break;				
-				}
-				case WeChatDevice.UNSUBSCRIBE_STATUS:{
-					//退出公众号界面请求
-					WeChatDevice device = getDeivcebyDeviceID(deviceid);
-					 if(device != null){
-						synchronized (device) {
-						//关于一些设备操作	
-						}
-					 }
-					break;
-				}
-				case WeChatDevice.EVENT_BIND:{
-					//绑定
-					addDeivcebyDeivceID(deviceid);
-					break;
-				}
-				case  WeChatDevice.EVENT_UNBIND:{
-					//解除绑定
-					removeDeivcebyDeivceID(deviceid,fromUsername);
-					break;
-				}
-			
-			}
-			dumpDeviceList();
+			handleDeivceEvent(event,deviceid,openid);
 			break;
-			}
-			
+		}
 		default:
 			log.d("the msgtype is " + msgtype + ", invaliad WeChat post request,do nothing!");
 		}		
@@ -370,5 +347,52 @@ public class WeChatSurvey extends HttpServlet{
 			log.d("addDeivcebyDeivceID end device_id:"+ deviceid);
 		}
 	}
+	private void handleDeivceEvent(String event,String deviceid,String openid)
+	{
+		
+		switch(event){
+			case WeChatDevice.EVENT_SUBSCRIBE:{
+				//进入公众号界面请求
+				WeChatDevice device = getDeivcebyDeviceID(deviceid);
+				 log.d("device "+ device);
+				 if(device == null){
+					 //如果list中没有device则加入
+					 addDeivcebyDeivceID(deviceid);
+				 }
+				 else if(!device.getSynchronize()){
+					 //如果需要同步则同步
+					 synchronized (device) {
+						 //涉及到里面设备对象，必须要加锁操作
+						 mWeChat.syncDeviceInfo(device, DEVICE_TYPE);
+						 device.dump("SUBSCRIBE_STATUS");							
+					 }
+				 }			
+				break;				
+			}
+			case WeChatDevice.EVENT_UNSUBSCRIBE:{
+				//退出公众号界面请求
+				WeChatDevice device = getDeivcebyDeviceID(deviceid);
+				 if(device != null){
+					synchronized (device) {
+					//关于一些设备操作	
+					}
+				 }
+				break;
+			}
+			case WeChatDevice.EVENT_BIND:{
+				//绑定
+				addDeivcebyDeivceID(deviceid);
+				break;
+			}
+			case  WeChatDevice.EVENT_UNBIND:{
+				//解除绑定
+				removeDeivcebyDeivceID(deviceid,openid);
+				break;
+			}
+		
+		}
+		dumpDeviceList();		
+	}	
+	
 }
 

@@ -5,9 +5,8 @@ import java.util.ArrayList;
 
 public class WeChatDevice {
 	
-	public static final String SUBSCRIBE_STATUS = "subscribe_status";
-	public static final String UNSUBSCRIBE_STATUS = "unsubscribe_status";
-	
+	public static final String EVENT_SUBSCRIBE = "subscribe_status";
+	public static final String EVENT_UNSUBSCRIBE = "unsubscribe_status";	
 	public static final String EVENT_BIND = "bind";
 	public static final String EVENT_UNBIND = "unbind";
 	
@@ -22,7 +21,10 @@ public class WeChatDevice {
 	private String mDeviceID		= null;		//设备id	
 	private String mDeviceType		= null;		//设备type，为公众号id	
 	private String mMac				= null;		//设备MAC地址
-	private String mQrcodeTicket	= null;		//设备二维码ticket	
+	private String mQrcodeTicket	= null;		//设备二维码ticket
+	
+	//action
+	private int mActionSecond		= 0;
 
 	//openid 列表，device绑定者id列表
 	private ArrayList<String> mOpenIDList = new ArrayList<String>();
@@ -128,5 +130,14 @@ public class WeChatDevice {
 			}
 		}
 		return false;
+	}
+	
+	public void setActionSecond(int second)
+	{
+		mActionSecond = second;
+	}
+	public int getActionSecond()
+	{
+		return mActionSecond;
 	}
 }
