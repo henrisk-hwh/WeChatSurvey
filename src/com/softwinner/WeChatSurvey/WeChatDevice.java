@@ -25,6 +25,7 @@ public class WeChatDevice {
 	
 	//action
 	private int mActionSecond		= 0;
+	private boolean mShouldAction	= false;
 
 	//openid 列表，device绑定者id列表
 	private ArrayList<String> mOpenIDList = new ArrayList<String>();
@@ -46,7 +47,8 @@ public class WeChatDevice {
 		log.d(s+" ---> Mac:          " + mMac);
 		log.d(s+" ---> QrcodeTicket: " + mQrcodeTicket);
 		log.d(s+" ---> Status:       " + mStatus);
-		log.d(s+" ---> OpenIDList:   " + mOpenIDList.toString());		
+		log.d(s+" ---> OpenIDList:   " + mOpenIDList.toString());
+		log.d(s+" ---> ShouldAction: " + mShouldAction);
 	}
 	public void setSynchronize(boolean sync)
 	{
@@ -140,4 +142,13 @@ public class WeChatDevice {
 	{
 		return mActionSecond;
 	}
+	public void setAction(boolean action)
+	{
+		mShouldAction = action;
+	}
+	public boolean getAction()
+	{
+		return mShouldAction;
+	}
+
 }

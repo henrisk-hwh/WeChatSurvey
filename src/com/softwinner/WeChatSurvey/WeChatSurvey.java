@@ -12,6 +12,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 
+import java.net.ServerSocket;
+import java.net.Socket;
+
+
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -107,6 +112,12 @@ public class WeChatSurvey extends HttpServlet{
 				cmd = "获取设备状态";
 				msg = "device_id: "+ device_id;
 				log.d(respondStr);
+				out.println("<html>");
+				out.println("<body>");
+				out.println(cmd+"  "+ msg);
+				out.println("<br>");
+				out.println(respondStr);
+				out.println("</body></html>");
 				break;
 			
 			case "getopenid":
@@ -115,12 +126,24 @@ public class WeChatSurvey extends HttpServlet{
 				msg = "device_type: "+ DEVICE_TYPE +" device_id: "+ device_id;
 				log.d(respondStr);
 				log.d(mWeChat.getOpenIDList(DEVICE_TYPE,device_id).toString());
+				out.println("<html>");
+				out.println("<body>");
+				out.println(cmd+"  "+ msg);
+				out.println("<br>");
+				out.println(respondStr);
+				out.println("</body></html>");
 				break;
 				
 			case "getusers":
 				respondStr = mWeChat.getUserOpenIDList();
 				cmd = "获取关注者列表";
 				log.d(respondStr);
+				out.println("<html>");
+				out.println("<body>");
+				out.println(cmd+"  "+ msg);
+				out.println("<br>");
+				out.println(respondStr);
+				out.println("</body></html>");
 				break;
 				
 			case "verifyqrcode":
@@ -128,30 +151,51 @@ public class WeChatSurvey extends HttpServlet{
 				respondStr = mWeChat.verifyQrcode(ticket);
 				msg = "ticket: " + ticket;
 				cmd = "查询二维码";
+				out.println("<html>");
+				out.println("<body>");
+				out.println(cmd+"  "+ msg);
+				out.println("<br>");
+				out.println(respondStr);
+				out.println("</body></html>");
 				break;
 				
 			case "getqrcode":
 				respondStr = mWeChat.getQrcode(device_id);
 				msg = "device_id: "+ device_id;
 				cmd = "获取二维码";
+				out.println("<html>");
+				out.println("<body>");
+				out.println(cmd+"  "+ msg);
+				out.println("<br>");
+				out.println(respondStr);
+				out.println("</body></html>");
 				break;
-			case "setactiontime":
+			case "setactiontime":{
 				String second = req.getParameter("actiontime");
 				log.d("second: "+ second+" device_id "+device_id);
 				WeChatDevice device = getDeivcebyDeviceID(device_id);
-				if(device != null)
+				if(device != null){
 					device.setActionSecond(Integer.parseInt(second));
+					if(device.getActionSecond() == 0)
+						device.setAction(false);
+				}
 				break;
-				
+				}
+			case "requestaction":{
+				WeChatDevice device = getDeivcebyDeviceID(device_id);
+
+				if(device != null && device.getAction())
+					respondStr = "do";				
+								
 			}
-			out.println("<html>");
-			out.println("<body>");
-			out.println(cmd+"  "+ msg);
-			out.println("<br>");
+			//out.println("<html>");
+			//out.println("<body>");
+			//out.println(cmd+"  "+ msg);
+			//out.println("<br>");
 			out.println(respondStr);
-			out.println("</body></html>");
-		}
-			
+			//out.println("</body></html>");
+			}
+		}	
 		System.out.println("==================== doGet end ====================");
 	}
 
@@ -233,9 +277,16 @@ public class WeChatSurvey extends HttpServlet{
 					int second = device.getActionSecond();
 					if(second > 0)
 						contentStr = "设备还有 "+ second + "秒 完成动作";
-					else
-						contentStr = "设备当前没有动作";
+					else{
+						contentStr = "设备当前没有动作";						
+					}
 					break;						
+				}
+				case "doaction":{
+					WeChatDevice device = getDeivcebyOpenID(fromUsername);
+					if(device != null)
+						device.setAction(true);
+					
 				}
 				default: 
 					contentStr = "菜单查询："+ WeChatHandler.getPostMSGParameterKey(m,WeChatHandler.EVENT_KEY);
@@ -366,7 +417,8 @@ public class WeChatSurvey extends HttpServlet{
 						 mWeChat.syncDeviceInfo(device, DEVICE_TYPE);
 						 device.dump("SUBSCRIBE_STATUS");							
 					 }
-				 }			
+				 }
+				 //应该请求和设备保持连接
 				break;				
 			}
 			case WeChatDevice.EVENT_UNSUBSCRIBE:{
@@ -377,6 +429,7 @@ public class WeChatSurvey extends HttpServlet{
 					//关于一些设备操作	
 					}
 				 }
+				 //断开连接
 				break;
 			}
 			case WeChatDevice.EVENT_BIND:{
