@@ -37,6 +37,7 @@ public class WeChatHandler {
 	public static final String MSG_TYPE_TEXT		= "text";
 	public static final String MSG_TYPE_EVENT		= "event";
 	public static final String MSG_TYPE_DEVICE		= "device_event";
+	public static final String MSG_TYPE_DEVICE_TEXT = "device_text";
 	
 	//menu type
 	public static final String MENU_TYPE_CLICK				= "CLICK";
@@ -49,6 +50,8 @@ public class WeChatHandler {
 	public static final String DEVICE_ID			= "DeviceID";
 	public static final String OP_TYPE				= "OpType";
 	public static final String OPEN_ID				= "OpenID";
+	public static final String SESSION_ID			= "SessionID";
+	public static final String DEVICE_CONTENT		= "Content";
 	
 	
 	private AccessToken mAccessToken = null;
@@ -642,5 +645,41 @@ public class WeChatHandler {
 		device.setSynchronize(true);
 		return true;
 	}
+	
+	//构建设备请求响应格式字符串
+    public static String makeDeviceContentRespondString(String toUsername,
+    													String fromUsername,
+    													String devicetype,
+    													String deviceid,
+    													String sessionid,
+    													String contentStr)
+    {
+    	String resultStr = null;
+    	String msgType = "device_text";
+    	String time = new Date().getTime()/1000+"";
+        String textTpl = "<xml>"+
+                		 "<ToUserName><![CDATA[%1$s]]></ToUserName>"+
+                		 "<FromUserName><![CDATA[%2$s]]></FromUserName>"+
+                		 "<CreateTime>%3$s</CreateTime>"+
+                		 "<MsgType><![CDATA[%4$s]]></MsgType>"+
+                		 "<DeviceType><![CDATA[%5$s]]></DeviceType>"+
+                		 "<DeviceID><![CDATA[%6$s]]></DeviceID>"+
+                		 "<SessionID><![CDATA[%7$s]]></SessionID>"+
+                		 "<Content><![CDATA[%8$s]]></Content>"+
+                		 //"<FuncFlag>0</FuncFlag>"+
+                		 "</xml>";
+        if(null != contentStr && !contentStr.equals(""))
+        {
+            //String contentStr = "Welcome to wechat world!";
+            resultStr = String.format(textTpl, toUsername, fromUsername, 
+            						  time,    msgType,    devicetype,
+            						  deviceid,sessionid,  contentStr);
+            log.d(resultStr);
+        }else{
+        	resultStr = null;
+        	log.d("Input something...");
+        }
+    	return resultStr;
+    }
 }
 

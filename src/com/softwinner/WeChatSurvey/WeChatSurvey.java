@@ -11,9 +11,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
-
 import java.net.ServerSocket;
 import java.net.Socket;
+
+
 
 
 
@@ -28,6 +29,8 @@ import org.dom4j.Document;
 import org.dom4j.DocumentException;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+
+import sun.misc.BASE64Decoder;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
@@ -312,6 +315,28 @@ public class WeChatSurvey extends HttpServlet{
 			handleDeivceEvent(event,deviceid,openid);
 			break;
 		}
+		case WeChatHandler.MSG_TYPE_DEVICE_TEXT:{
+			//设备数据请求
+			String content 		= WeChatHandler.getPostMSGParameterKey(m,WeChatHandler.DEVICE_CONTENT);
+			String sessionid 	= WeChatHandler.getPostMSGParameterKey(m,WeChatHandler.SESSION_ID);
+			String devicetype 	= WeChatHandler.getPostMSGParameterKey(m,WeChatHandler.DEVICE_TYPE);
+			String deviceid 	= WeChatHandler.getPostMSGParameterKey(m,WeChatHandler.DEVICE_ID);
+			log.d("content:      " + content);
+			log.d("sessionid:    " + sessionid);
+			byte[] b = getFromBASE64(content);
+			final StringBuilder stringbuilder = new StringBuilder(b.length);
+			for(byte bytechar : b)
+				stringbuilder.append(String.format("0x%02X ",bytechar));
+			log.d("stringbuilder:   " + stringbuilder.toString());
+			
+			byte[] a = new byte[2];
+			a[0] = 0; a[1] = 1;
+			log.d("getBASE64: "+getBASE64(a));
+			respondStr = WeChatHandler.makeDeviceContentRespondString(fromUsername, toUsername, devicetype, deviceid, sessionid, getBASE64(a));
+					//TextRespondString(fromUsername, toUsername, contentStr);
+			
+			break;
+		}
 		default:
 			log.d("the msgtype is " + msgtype + ", invaliad WeChat post request,do nothing!");
 		}		
@@ -446,6 +471,21 @@ public class WeChatSurvey extends HttpServlet{
 		}
 		dumpDeviceList();		
 	}	
-	
+	// 将 BASE64 编码的字符串 s 进行解码
+	public static byte[] getFromBASE64(String s) {
+		if (s == null) return null;
+			BASE64Decoder decoder = new BASE64Decoder();
+			try {
+				byte[] b = decoder.decodeBuffer(s);
+				return b;
+			} catch (Exception e) {
+			return null;
+		}
+	}
+	// 将 s 进行 BASE64 编码
+	public static String getBASE64(byte[] s) {
+	if (s == null) return null;
+		return (new sun.misc.BASE64Encoder()).encode( s );
+	} 
 }
 
