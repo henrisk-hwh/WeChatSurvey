@@ -191,6 +191,10 @@ public class WeChatSurvey extends HttpServlet{
 					respondStr = "do";				
 								
 			}
+			case "sendmsg":{
+				//String s = mWeChat.sendCustomMessage(fromUsername,context);
+				//log.d(s);			
+			}
 			//out.println("<html>");
 			//out.println("<body>");
 			//out.println(cmd+"  "+ msg);
@@ -289,7 +293,29 @@ public class WeChatSurvey extends HttpServlet{
 					WeChatDevice device = getDeivcebyOpenID(fromUsername);
 					if(device != null)
 						device.setAction(true);
-					
+					break;
+				}
+				case "getBLEsteps":{
+					contentStr = "目前步数为："+ mCount;
+					break;
+				}
+				case "start":{
+					byte[] a = new byte[2];
+					a[0] = 1; a[1] = 1;
+					log.d("getBASE64: " + getBASE64(a));				
+					String s = mWeChat.transmsgtoDevice(DEVICE_TYPE,"6789",fromUsername,getBASE64(a));
+					log.d(s);
+					contentStr = "开始记步";
+					break;
+				}
+				case "stop":{
+					byte[] a = new byte[2];
+					a[0] = 0; a[1] = 1;
+					log.d("getBASE64: " + getBASE64(a));				
+					String s = mWeChat.transmsgtoDevice(DEVICE_TYPE,"6789",fromUsername,getBASE64(a));
+					log.d(s);
+					contentStr = "停止记步";
+					break;
 				}
 				default: 
 					contentStr = "菜单查询："+ WeChatHandler.getPostMSGParameterKey(m,WeChatHandler.EVENT_KEY);
@@ -328,13 +354,19 @@ public class WeChatSurvey extends HttpServlet{
 			for(byte bytechar : b)
 				stringbuilder.append(String.format("0x%02X ",bytechar));
 			log.d("stringbuilder:   " + stringbuilder.toString());
-			
+			log.d(b[0]+""+b[1]+""+b[2]+""+b[3]+""+b[4]+"");
+			mCount = b[4] + b[3]*10 + b[2]*100 + b[1]*1000 + b[0]*10000;
+			log.d("count: "+mCount);
 			byte[] a = new byte[2];
 			a[0] = 0; a[1] = 1;
 			log.d("getBASE64: "+getBASE64(a));
 			respondStr = WeChatHandler.makeDeviceContentRespondString(fromUsername, toUsername, devicetype, deviceid, sessionid, getBASE64(a));
 					//TextRespondString(fromUsername, toUsername, contentStr);
-			
+			//if(mCount%10 == 0){
+				String context = "当前步数为："+mCount;
+				String s = mWeChat.sendCustomMessage(fromUsername,context);
+				log.d(s);
+			//}
 			break;
 		}
 		default:

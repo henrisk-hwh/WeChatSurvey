@@ -1,3 +1,4 @@
+<%@ page language="java" pageEncoding="utf-8"%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -33,17 +34,26 @@
 			<a href="javascript:void(0)" class="button" id="disconnectWXDevice">断开设备</a>
 			<a href="javascript:void(0)" class="button" id="sendDataToWXDevice">发送数据</a>
 		</div>
+		<div>
+			<a href="javascript:void(0)" class="button" id="hiden">隐藏</a>
+
+		</div>
 	</div>
 
 	<script src="debug.js" type="text/javascript"></script>
 	<script>
 
-	var deviceId = "F204070188CC";
+	var deviceId = "6789";
 
 	var readyFunc = function onBridgeReady() {
+		document.querySelector('#hiden').addEventListener('touchstart', function(e){
+			WeixinJSBridge.call('hideOptionMenu');
+			console.log('hiden',"1");
+		});
+		
 		document.querySelector('#openWXDeviceLib').addEventListener('touchstart', function(e){
 			WeixinJSBridge.invoke('openWXDeviceLib', {}, function(res){
-				console.log('openWXDeviceLib', res);
+				console.log('openWXDeviceLib22', res);
 			});
 		});
 		document.querySelector('#closeWXDeviceLib').addEventListener('touchstart', function(e){

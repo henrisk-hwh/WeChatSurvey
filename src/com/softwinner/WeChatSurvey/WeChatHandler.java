@@ -351,10 +351,29 @@ public class WeChatHandler {
 									+ "}"		
 							+ "]},"   
     						+ "{"
-    							+ "\"type\":\"click\","
-    							+ "\"name\":\"开始动做\","
-    							+ "\"key\":\"doaction\""
-    						+ "},"
+								+ "\"name\":\"我的\","
+								+ "\"sub_button\":["
+									+ "{"
+										+ "\"type\":\"click\","
+										+ "\"name\":\"wifi 开始动作\","
+										+ "\"key\":\"doaction\""
+									+ "},"
+									+ "{"
+										+ "\"type\":\"click\","
+										+ "\"name\":\"BLE 步数\","
+										+ "\"key\":\"getBLEsteps\""
+									+ "},"
+									+ "{"
+										+ "\"type\":\"click\","
+										+ "\"name\":\"开始记步\","
+										+ "\"key\":\"start\""
+									+ "},"
+									+ "{"
+										+ "\"type\":\"click\","
+										+ "\"name\":\"停止记步\","
+										+ "\"key\":\"stop\""
+									+ "}"		
+							+ "]},"
     						+ "{"
     							+ "\"name\":\"日常工作\","
     							+ "\"sub_button\":["
@@ -374,14 +393,14 @@ public class WeChatHandler {
     									+ "\"key\":\"A33 SDK\""
     								+ "},"
     								+ "{"
-    									+ "\"type\":\"click\","
-    									+ "\"name\":\"A23\","
-    									+ "\"key\":\"A23 SDK\""
+    									+ "\"type\":\"view\","
+    									+ "\"name\":\"test\","
+    									+ "\"url\":\"http://114.215.158.131/WeChatSurvey/index.html\""
     								+ "},"
     								+ "{"
     									+ "\"type\":\"view\","
     									+ "\"name\":\"联系我们\","
-    									+ "\"url\":\"http://www.allwinnertech.com/\""
+    									+ "\"url\":\"http://114.215.158.131/WeChatSurvey/device.jsp\""    									
     								+ "}"
     							+ "]}"
     						+ "]"
@@ -680,6 +699,27 @@ public class WeChatHandler {
         	log.d("Input something...");
         }
     	return resultStr;
+    }
+    
+    public String transmsgtoDevice(String devicetype,String deviceid,String openid, String content){
+    	String url =  "https://api.weixin.qq.com/device/transmsg";
+    	String param = "access_token="+ mAccessToken.getAccessToken();		
+		url = url + "?" + param;
+		
+		//param = "{\"ticket\":\"" + ticket + "\"}";
+		String textTpl = "{\"device_type\":\"%1$s\",\"device_id\":\"%2$s\",\"open_id\":\"%3$s\",\"content\":\"%4$s\"}";
+		param = String.format(textTpl,devicetype,deviceid,openid,content);
+		log.d(param);
+		return HttpRequest.sendPost(url,param);  	
+    	
+    }
+    public String  sendCustomMessage(String openid,String content){
+    	String url =  "https://api.weixin.qq.com/cgi-bin/message/custom/send";
+    	String param = "access_token="+ mAccessToken.getAccessToken();		
+		url = url + "?" + param;
+		String textTpl = "{\"touser\":\"%1$s\",\"msgtype\":\"text\",\"text\":{\"content\":\"%2$s\"}}";
+		param = String.format(textTpl,openid,content);
+		return HttpRequest.sendPost(url,param);    	
     }
 }
 
