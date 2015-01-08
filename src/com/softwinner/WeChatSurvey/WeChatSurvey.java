@@ -10,9 +10,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.Map;
 import java.net.ServerSocket;
 import java.net.Socket;
+
+
+
 
 
 
@@ -35,12 +39,18 @@ import sun.misc.BASE64Decoder;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 public class WeChatSurvey extends HttpServlet{
 	
 	public static final String TOKEN = "henrisktest";
 	public static final String CONTENT_TYPE="text/html;charset=utf-8";
 	public static final String DEVICE_TYPE="gh_206febbb4f15";
-	
+	public MYSQLDB mSQL = null;
 	public int mCount = 0;
 	public WeChatHandler mWeChat;
 	public ArrayList<WeChatDevice> mDeviceList;
@@ -52,11 +62,13 @@ public class WeChatSurvey extends HttpServlet{
 		super.init(config);
 	}
 
-	private boolean mMicroMSGVerify = false;
+	private boolean mWeChatVerify = false;
 
 	@Override
 	public void destroy() {
 		// TODO Auto-generated method stub
+		if(mSQL != null)
+			mSQL.closeConn();
 		super.destroy();
 	}
 
@@ -67,11 +79,34 @@ public class WeChatSurvey extends HttpServlet{
 		System.out.println(" ");
 		System.out.println(" ");
 		log.d("----init----");
-		mWeChat = new WeChatHandler();
+		//mWeChat = new WeChatHandler();
 		//mDeviceList =  (ArrayList<WechatDevice>) Collections.synchronizedList(new ArrayList<WechatDevice>());
-		mDeviceList = new ArrayList<WeChatDevice>();
-		mWeChat.creatMenu();
-		mWeChat.getDevice();
+		//mDeviceList = new ArrayList<WeChatDevice>();
+		//mWeChat.creatMenu();
+		//mWeChat.getDevice();
+		mSQL = new MYSQLDB();
+		Connection conn = mSQL.getConn();
+		try {
+			PreparedStatement preStat = conn.prepareStatement(MYSQLDB.SQL_TEST);
+
+			ResultSet resSet = preStat.executeQuery();
+			
+
+			while(resSet.next()){
+				log.d(resSet.getObject(1).toString());
+				String s = "student_id="+resSet.getInt("student_id")+
+						   ",name="+resSet.getString("name")+
+						   ",scoure_id="+resSet.getInt("scoure_id")+
+						   ",score="+resSet.getInt("score");
+				log.d(s);
+			}
+
+			resSet.close();
+			preStat.close();
+
+		}catch(SQLException e){
+			e.printStackTrace();
+		}	
 	}
 	
 	@Override
@@ -84,8 +119,8 @@ public class WeChatSurvey extends HttpServlet{
 		System.out.println("===================== doGet =====================");
 		
 		//设置URL时，验证消息真实性	
-		mMicroMSGVerify = WeChatHandler.checkSignature(req);
-		if(mMicroMSGVerify){
+		mWeChatVerify = WeChatHandler.checkSignature(req);
+		if(mWeChatVerify){
 			//校验通过，返回echostr
 			String echostr = req.getParameter("echostr");
 			log.d("the echostr is: " + echostr);
