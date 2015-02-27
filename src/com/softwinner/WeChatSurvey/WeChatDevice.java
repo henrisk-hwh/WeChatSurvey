@@ -2,6 +2,8 @@ package com.softwinner.WeChatSurvey;
 
 import java.util.ArrayList;
 
+import com.softwinner.log.log;
+
 
 public class WeChatDevice {
 	

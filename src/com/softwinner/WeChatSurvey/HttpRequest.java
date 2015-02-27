@@ -9,6 +9,8 @@ import java.net.URLConnection;
 import java.util.List;
 import java.util.Map;
 
+import com.softwinner.log.log;
+
 public class HttpRequest {
     /**
      * 向指定URL发送GET方法的请求

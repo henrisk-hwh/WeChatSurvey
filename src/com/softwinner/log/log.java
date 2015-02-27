@@ -1,4 +1,4 @@
-package com.softwinner.WeChatSurvey;
+package com.softwinner.log;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

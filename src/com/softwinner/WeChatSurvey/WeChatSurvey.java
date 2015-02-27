@@ -22,6 +22,9 @@ import java.net.Socket;
 
 
 
+
+
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -38,6 +41,8 @@ import sun.misc.BASE64Decoder;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.softwinner.Workerman.SocketConnection.SocketConnection;
+import com.softwinner.log.log;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -51,6 +56,7 @@ public class WeChatSurvey extends HttpServlet{
 	public static final String CONTENT_TYPE="text/html;charset=utf-8";
 	public static final String DEVICE_TYPE="gh_206febbb4f15";
 	public MYSQLDB mSQL = null;
+	public SocketConnection mSocketConnection = null;
 	public int mCount = 0;
 	public WeChatHandler mWeChat;
 	public ArrayList<WeChatDevice> mDeviceList;
@@ -69,6 +75,10 @@ public class WeChatSurvey extends HttpServlet{
 		// TODO Auto-generated method stub
 		if(mSQL != null)
 			mSQL.closeConn();
+		if(mSocketConnection != null){
+			mSocketConnection.finishAll();
+			//mSocketConnection.closeSocket();
+		}
 		super.destroy();
 	}
 
@@ -79,13 +89,14 @@ public class WeChatSurvey extends HttpServlet{
 		System.out.println(" ");
 		System.out.println(" ");
 		log.d("----init----");
-		//mWeChat = new WeChatHandler();
+		mWeChat = new WeChatHandler();
 		//mDeviceList =  (ArrayList<WechatDevice>) Collections.synchronizedList(new ArrayList<WechatDevice>());
-		//mDeviceList = new ArrayList<WeChatDevice>();
-		//mWeChat.creatMenu();
+		mDeviceList = new ArrayList<WeChatDevice>();
+		mWeChat.creatMenu();
 		//mWeChat.getDevice();
-		mSQL = new MYSQLDB();
-		Connection conn = mSQL.getConn();
+		//mSQL = new MYSQLDB();
+		//Connection conn = mSQL.getConn();
+		/*
 		try {
 			PreparedStatement preStat = conn.prepareStatement(MYSQLDB.SQL_TEST);
 
@@ -106,7 +117,13 @@ public class WeChatSurvey extends HttpServlet{
 
 		}catch(SQLException e){
 			e.printStackTrace();
-		}	
+		}*/
+
+		//mSQL.queryUser("test1");
+		
+		mSocketConnection = new SocketConnection();
+		mSocketConnection.init();
+		mSocketConnection.startAll();
 	}
 	
 	@Override
@@ -117,7 +134,7 @@ public class WeChatSurvey extends HttpServlet{
 		System.out.println(" ");
 		System.out.println(" ");
 		System.out.println("===================== doGet =====================");
-		
+		//mSocketConnection.testWrite(new Date().toString());
 		//设置URL时，验证消息真实性	
 		mWeChatVerify = WeChatHandler.checkSignature(req);
 		if(mWeChatVerify){
@@ -374,6 +391,10 @@ public class WeChatSurvey extends HttpServlet{
 			log.d("openid:       " + openid);
 			
 			handleDeivceEvent(event,deviceid,openid);
+			if(WeChatDevice.EVENT_SUBSCRIBE.equals(event)){
+				respondStr = WeChatHandler.makeWifiDeviceStatusString(fromUsername, toUsername, devicetype, deviceid, 1);
+				log.d(respondStr);
+			}
 			break;
 		}
 		case WeChatHandler.MSG_TYPE_DEVICE_TEXT:{

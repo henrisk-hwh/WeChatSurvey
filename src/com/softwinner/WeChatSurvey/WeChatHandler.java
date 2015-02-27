@@ -20,6 +20,7 @@ import org.dom4j.Element;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.softwinner.log.log;
 
 public class WeChatHandler {
 	public static final String TOKEN = "henrisktest";
@@ -323,6 +324,7 @@ public class WeChatHandler {
     	url = url + "?" + param ;
 
     	//json string
+    	
     	String ss = "{\"button\":[{\"type\":\"click\",\"name\":\"AWtech\",\"key\":\"全志科技\"},{\"type\":\"click\",\"name\":\"芯片查询\",\"key\":\"芯片查询\"},{\"name\":\"日常工作\",\"sub_button\":[{\"type\":\"click\",\"name\":\"A80\",\"key\":\"A80 SDK\"},{\"type\":\"click\",\"name\":\"A83\",\"key\":\"A83 SDK\"},{\"type\":\"click\",\"name\":\"A33\",\"key\":\"A33 SDK\"},{\"type\":\"click\",\"name\":\"A23\",\"key\":\"A23 SDK\"},{\"type\":\"view\",\"name\":\"联系我们\",\"url\":\"http://www.allwinnertech.com/\"}]}]}";
     	String menu = "{"
     					+ "\"button\":["
@@ -346,18 +348,13 @@ public class WeChatHandler {
 									+ "},"
 									+ "{"
 										+ "\"type\":\"click\","
-										+ "\"name\":\"查询动作时间\","
-										+ "\"key\":\"getactiontime\""
+										+ "\"name\":\"查询设备类型\","
+										+ "\"key\":\"getdevivetype\""
 									+ "}"		
 							+ "]},"   
     						+ "{"
-								+ "\"name\":\"我的\","
+								+ "\"name\":\"我的BLE设备\","
 								+ "\"sub_button\":["
-									+ "{"
-										+ "\"type\":\"click\","
-										+ "\"name\":\"wifi 开始动作\","
-										+ "\"key\":\"doaction\""
-									+ "},"
 									+ "{"
 										+ "\"type\":\"click\","
 										+ "\"name\":\"BLE 步数\","
@@ -375,22 +372,22 @@ public class WeChatHandler {
 									+ "}"		
 							+ "]},"
     						+ "{"
-    							+ "\"name\":\"日常工作\","
+    							+ "\"name\":\"我的wifi设备\","
     							+ "\"sub_button\":["
     								+ "{"
     									+ "\"type\":\"click\","
-    									+ "\"name\":\"A80\","
-    									+ "\"key\":\"A80 SDK\""
+    									+ "\"name\":\"开始\","
+    									+ "\"key\":\"on\""
     								+ "},"
     								+ "{"
     									+ "\"type\":\"click\","
-    									+ "\"name\":\"A83\","
-    									+ "\"key\":\"A83 SDK\""
+    									+ "\"name\":\"结束\","
+    									+ "\"key\":\"off\""
     								+ "},"
     								+ "{"
     									+ "\"type\":\"click\","
-    									+ "\"name\":\"A33\","
-    									+ "\"key\":\"A33 SDK\""
+    									+ "\"name\":\"监听\","
+    									+ "\"key\":\"listen\""
     								+ "},"
     								+ "{"
     									+ "\"type\":\"view\","
@@ -406,6 +403,8 @@ public class WeChatHandler {
     						+ "]"
     					+ "}";
     	
+    	//JSONObject querydevbtn = new JSONObject();
+    	//querydevbtn.put("name", "设备查询");
     	log.d(menu);
 
     	String s = HttpRequest.sendPost(url,menu);
@@ -657,7 +656,7 @@ public class WeChatHandler {
 	public boolean syncDeviceInfo(WeChatDevice device,String device_type)
 	{
 		String deviceid = device.getDeviceID();
-		//device.setQrcodeTicket(getQrcode(deviceid));	//获取新的二维码，是否合理？？
+		device.setQrcodeTicket(getQrcode(deviceid));	//获取新的二维码，是否合理？？
 		device.setStatus(queryDeviceStatus(deviceid));	//获取状态
 		device.setMac(getMac(device.getQrcodeTicket()));
 		device.setOpenList(getOpenIDList(device_type, deviceid));
@@ -720,6 +719,29 @@ public class WeChatHandler {
 		String textTpl = "{\"touser\":\"%1$s\",\"msgtype\":\"text\",\"text\":{\"content\":\"%2$s\"}}";
 		param = String.format(textTpl,openid,content);
 		return HttpRequest.sendPost(url,param);    	
+    }
+    
+    public static String makeWifiDeviceStatusString(String toUsername,
+													String fromUsername,
+													String devicetype,
+													String deviceid,
+													int devicestatus){
+    	String resultStr = null;
+    	String msgType = "device_status";
+    	String time = new Date().getTime()/1000+"";
+        String textTpl = "<xml>"+
+				   		 "<ToUserName><![CDATA[%1$s]]></ToUserName>"+
+				   		 "<FromUserName><![CDATA[%2$s]]></FromUserName>"+
+				   		 "<CreateTime>%3$s</CreateTime>"+
+				   		 "<MsgType><![CDATA[%4$s]]></MsgType>"+
+				   		 "<DeviceType><![CDATA[%5$s]]></DeviceType>"+
+				   		 "<DeviceID><![CDATA[%6$s]]></DeviceID>"+
+				   		 "<DeviceStatus>%7$d</DeviceStatus>"+
+				   		 "</xml>";
+        resultStr = String.format(textTpl, toUsername, fromUsername, 
+				  time,    msgType,    devicetype,
+				  deviceid,devicestatus);
+    	return resultStr;
     }
 }
 
