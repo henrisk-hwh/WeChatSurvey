@@ -1,4 +1,6 @@
 package com.softwinner.Workerman.SocketApi;
+import java.util.ArrayList;
+
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -20,6 +22,8 @@ public class ConnectApi {
 	public static int MSG_PUSH_ALL = 5000;
 	public static int MSG_PUSH_DEVICE = 5001;
 	
+	public static int MSG_UPDATE_IMAGE = 6000;
+	
 	public static String getWebServerAuthRespString(){
 		JSONObject json = new JSONObject();
 		json.put("role", ROLE_WEBSEVER);
@@ -28,12 +32,27 @@ public class ConnectApi {
 		return json.toString();
 	}
 	
-	public static String getPushMsgString(String data,int msg,String device_id){
+	public static String getWebServerPushMsgString(String data,int msg,String device_id){
 		JSONObject json = new JSONObject();
+		json.put("role", ROLE_WEBSEVER);
 		json.put("type", TYPE_PUSH);
 		json.put("msg", msg);
 		if(device_id != null)
 			json.put("id", device_id);
+		json.put("data", data);
+		return json.toString();		
+	}
+	public static String getWebServerPushMsgString(String data,int msg,ArrayList<String> device_id_list){
+		JSONObject json = new JSONObject();
+		json.put("role", ROLE_WEBSEVER);
+		json.put("type", TYPE_PUSH);
+		json.put("msg", msg);
+		JSONArray jsonarray = new JSONArray();
+		for(String device_id:device_id_list){
+			if(device_id != null)
+				jsonarray.add(device_id);	
+		}
+		json.put("id", jsonarray);
 		json.put("data", data);
 		return json.toString();		
 	}

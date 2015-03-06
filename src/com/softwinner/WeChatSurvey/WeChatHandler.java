@@ -712,7 +712,7 @@ public class WeChatHandler {
 		return HttpRequest.sendPost(url,param);  	
     	
     }
-    public String  sendCustomMessage(String openid,String content){
+    public String  sendCustomTextMessage(String openid,String content){
     	String url =  "https://api.weixin.qq.com/cgi-bin/message/custom/send";
     	String param = "access_token="+ mAccessToken.getAccessToken();		
 		url = url + "?" + param;
@@ -720,7 +720,22 @@ public class WeChatHandler {
 		param = String.format(textTpl,openid,content);
 		return HttpRequest.sendPost(url,param);    	
     }
-    
+    public String  sendCustomImageMessage(String openid,String media_id){
+    	String url =  "https://api.weixin.qq.com/cgi-bin/message/custom/send";
+    	String param = "access_token="+ mAccessToken.getAccessToken();		
+		url = url + "?" + param;
+		String textTpl = "{\"touser\":\"%1$s\",\"msgtype\":\"image\",\"image\":{\"media_id\":\"%2$s\"}}";
+		param = String.format(textTpl,openid,media_id);
+		return HttpRequest.sendPost(url,param);    	
+    }
+    public String uploadImageMedia(String path){
+    	String url =  "http://file.api.weixin.qq.com/cgi-bin/media/upload";
+    	String param = "access_token="+ mAccessToken.getAccessToken()+"&type=image";
+    	url = url + "?" + param;
+    	String s = HttpRequest.uploadMedia(url,path);
+		return JSON.parseObject(s).getString("media_id");
+		
+    }
     public static String makeWifiDeviceStatusString(String toUsername,
 													String fromUsername,
 													String devicetype,

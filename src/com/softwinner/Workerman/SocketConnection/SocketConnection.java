@@ -20,7 +20,7 @@ import com.softwinner.log.log;
 public class SocketConnection implements SocketReadThread.ReadThreadListener{
 
 	public static String SocketServerIP = "127.0.0.1";
-	public static int ScoketPort = 6666;
+	public static int ScoketPort = 2345;
 	private Socket mServerSocket = null;
 
 	private SocketReadThread mReadThread = null;
@@ -29,8 +29,7 @@ public class SocketConnection implements SocketReadThread.ReadThreadListener{
 	private SocketConnect mConnect = new SocketConnect(SocketServerIP,ScoketPort);
 	private Timer mTimer = null;
 	public interface ConnectionListener{
-		public void onRead(String s);
-		public void onWrite(String s);
+		public void onPushIamge(String path,String device_id);
 		
 	}
 	private ConnectionListener mListener;
@@ -80,26 +79,31 @@ public class SocketConnection implements SocketReadThread.ReadThreadListener{
 	}
 
 	public void testWrite(String s){
-		pushDatatoAll("hello devices");
+		pushDatatoAll(s);
 	}
 
 	public void pushDatatoAll(String data){
 		Data senddata = new Data();
-		senddata.string = ConnectApi.getPushMsgString(data,ConnectApi.MSG_PUSH_ALL,null);
+		senddata.string = ConnectApi.getWebServerPushMsgString(data,ConnectApi.MSG_PUSH_ALL,(String)null);
 		mWriteThread.addItem(senddata);
 	}
 
-	public void pushDatatoOnes(String data,String device_id){
+	public void pushDatatoOne(String data,String device_id){
 		Data senddata = new Data();
-		senddata.string = ConnectApi.getPushMsgString(data,ConnectApi.MSG_PUSH_DEVICE,device_id);
+		senddata.string = ConnectApi.getWebServerPushMsgString(data,ConnectApi.MSG_PUSH_DEVICE,device_id);
 		mWriteThread.addItem(senddata);
 	}
+	public void pushDatatoGroup(String data,ArrayList<String> device_id_list){
+		Data senddata = new Data();
+		senddata.string = ConnectApi.getWebServerPushMsgString(data,ConnectApi.MSG_PUSH_DEVICE,device_id_list);
+		mWriteThread.addItem(senddata);
+	}
+	
 	@Override
 	public void onRead(String msg) {
 		// TODO Auto-generated method stub		
-		if(mListener != null)
-			mListener.onRead(msg);
-		
+
+		log.d("onRead: "+msg);
 		JSONObject jp = JSON.parseObject(msg);
 		
 		int type = jp.getIntValue("type");
@@ -107,9 +111,29 @@ public class SocketConnection implements SocketReadThread.ReadThreadListener{
 			Data data = new Data();
 			data.string = ConnectApi.getWebServerAuthRespString();
 			mWriteThread.addItem(data);			
-		}		
+		}
+		
+		if(type == ConnectApi.TYPE_UPDATE){			
+			if((ConnectApi.MSG_UPDATE_IMAGE == jp.getIntValue("msg"))){
+				String image_path = jp.getString("path");
+				String device_id = jp.getString("id");
+				if(device_id != null && image_path!= null && mListener != null)
+					mListener.onPushIamge(image_path,device_id);
+			}
+		}
+		
+		//测试分支
+		if(type == 100){//test
+			testdevicenum++;
+		}
 	}
-
+	private int testdevicenum = 0;
+	public int getTestDeviceNum(){
+		return testdevicenum;
+	}
+	public void clearTestDeivceNum(){
+		testdevicenum = 0;
+	}
 	//读线程异常时回调
 	@Override
 	public void onReadThreadBreaked() {

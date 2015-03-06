@@ -25,6 +25,11 @@ import java.net.Socket;
 
 
 
+
+
+
+
+
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -41,6 +46,7 @@ import sun.misc.BASE64Decoder;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.softwinner.Workerman.SocketApi.ConnectApi;
 import com.softwinner.Workerman.SocketConnection.SocketConnection;
 import com.softwinner.log.log;
 
@@ -49,8 +55,9 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
 
-public class WeChatSurvey extends HttpServlet{
+public class WeChatSurvey extends HttpServlet implements SocketConnection.ConnectionListener{
 	
 	public static final String TOKEN = "henrisktest";
 	public static final String CONTENT_TYPE="text/html;charset=utf-8";
@@ -123,9 +130,15 @@ public class WeChatSurvey extends HttpServlet{
 		
 		mSocketConnection = new SocketConnection();
 		mSocketConnection.init();
+		mSocketConnection.setListener(this);
 		mSocketConnection.startAll();
+		
+		//test json string
+		//ArrayList<String> device_id_list = new ArrayList<String>();
+		//device_id_list.add("111");device_id_list.add("333");device_id_list.add("555");
+		//log.d(ConnectApi.getWebServerPushMsgString("aa", 11, device_id_list));
 	}
-	
+
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
 			throws ServletException, IOException {
@@ -294,7 +307,18 @@ public class WeChatSurvey extends HttpServlet{
 			//普通text请求
 			String content = WeChatHandler.getPostMSGParameterKey(m,WeChatHandler.CONTENT);//获取请求中内容
 			contentStr = "测试字符串: "+ content + ".      hello world!  世界，你好!";
+			
+			mSocketConnection.testWrite(content);
+			try {
+				Thread.sleep(2000);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			contentStr = contentStr + " 当前在线设备为： "+mSocketConnection.getTestDeviceNum();
+			mSocketConnection.clearTestDeivceNum();
 			respondStr = WeChatHandler.makeTextRespondString(fromUsername, toUsername, contentStr);
+
 			break;
 		}
 		case WeChatHandler.MSG_TYPE_EVENT:{
@@ -394,6 +418,7 @@ public class WeChatSurvey extends HttpServlet{
 			if(WeChatDevice.EVENT_SUBSCRIBE.equals(event)){
 				respondStr = WeChatHandler.makeWifiDeviceStatusString(fromUsername, toUsername, devicetype, deviceid, 1);
 				log.d(respondStr);
+				//mSocketConnection.testWrite(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss:SSS").format(new Date()));
 			}
 			break;
 		}
@@ -420,7 +445,7 @@ public class WeChatSurvey extends HttpServlet{
 					//TextRespondString(fromUsername, toUsername, contentStr);
 			//if(mCount%10 == 0){
 				String context = "当前步数为："+mCount;
-				String s = mWeChat.sendCustomMessage(fromUsername,context);
+				String s = mWeChat.sendCustomTextMessage(fromUsername,context);
 				log.d(s);
 			//}
 			break;
@@ -574,6 +599,24 @@ public class WeChatSurvey extends HttpServlet{
 	public static String getBASE64(byte[] s) {
 	if (s == null) return null;
 		return (new sun.misc.BASE64Encoder()).encode( s );
-	} 
+	}
+
+	@Override
+	public void onPushIamge(String path,String device_id) {
+		// TODO Auto-generated method stub
+
+		String media_id = mWeChat.uploadImageMedia(path);
+		if(media_id != null){			
+			WeChatDevice device = getDeivcebyDeviceID(device_id);
+			if(device == null) return;
+			for(String open_id: device.getOpenIDList()){
+				log.d(mWeChat.sendCustomImageMessage(open_id,media_id));
+			}
+		}
+		else
+			log.e("media id is null");			
+
+	}
+	
 }
 
