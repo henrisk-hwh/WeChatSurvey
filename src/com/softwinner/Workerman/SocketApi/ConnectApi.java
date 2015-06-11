@@ -20,7 +20,8 @@ public class ConnectApi {
 	public static int MSG_AUTH_FIAL = 4003;
 	
 	public static int MSG_PUSH_ALL = 5000;
-	public static int MSG_PUSH_DEVICE = 5001;
+	public static int MSG_PUSH_ONE = 5001;
+	public static int MSG_PUSH_GROUP = 5002;
 	
 	public static int MSG_UPDATE_IMAGE = 6000;
 	

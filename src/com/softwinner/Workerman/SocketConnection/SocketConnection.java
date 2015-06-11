@@ -90,12 +90,12 @@ public class SocketConnection implements SocketReadThread.ReadThreadListener{
 
 	public void pushDatatoOne(String data,String device_id){
 		Data senddata = new Data();
-		senddata.string = ConnectApi.getWebServerPushMsgString(data,ConnectApi.MSG_PUSH_DEVICE,device_id);
+		senddata.string = ConnectApi.getWebServerPushMsgString(data,ConnectApi.MSG_PUSH_ONE,device_id);
 		mWriteThread.addItem(senddata);
 	}
 	public void pushDatatoGroup(String data,ArrayList<String> device_id_list){
 		Data senddata = new Data();
-		senddata.string = ConnectApi.getWebServerPushMsgString(data,ConnectApi.MSG_PUSH_DEVICE,device_id_list);
+		senddata.string = ConnectApi.getWebServerPushMsgString(data,ConnectApi.MSG_PUSH_GROUP,device_id_list);
 		mWriteThread.addItem(senddata);
 	}
 	

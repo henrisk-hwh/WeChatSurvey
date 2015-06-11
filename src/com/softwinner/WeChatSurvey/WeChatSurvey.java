@@ -287,6 +287,9 @@ public class WeChatSurvey extends HttpServlet implements SocketConnection.Connec
 		//验证消息真实性
 		if(!WeChatHandler.checkSignature(req)) return;
 		
+		//刷新下AccessToken
+		mWeChat.syncAccessToken();
+		
 		Map<String, Object> m = WeChatHandler.getPostMSGParameterMap(req);		
 		if(m == null) return;
 		

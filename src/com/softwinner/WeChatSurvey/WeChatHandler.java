@@ -1,6 +1,8 @@
 package com.softwinner.WeChatSurvey;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.util.ArrayList;
@@ -24,6 +26,8 @@ import com.softwinner.log.log;
 
 public class WeChatHandler {
 	public static final String TOKEN = "henrisktest";
+	public static final String APPID = "wx344a43b36f5ef1c6";
+	public static final String APPSECRET = "b6108a59b5e413c48080892d5561fcdd";
 	
 	public static final String TO_USER_NAME 		= "ToUserName";
 	public static final String FROM_USER_NAME 		= "FromUserName";
@@ -392,12 +396,12 @@ public class WeChatHandler {
     								+ "{"
     									+ "\"type\":\"view\","
     									+ "\"name\":\"test\","
-    									+ "\"url\":\"http://114.215.158.131/WeChatSurvey/index.html\""
+    									+ "\"url\":\"http://www.amutech.net/WeChatSurvey/index.html\""
     								+ "},"
     								+ "{"
     									+ "\"type\":\"view\","
     									+ "\"name\":\"联系我们\","
-    									+ "\"url\":\"http://114.215.158.131/WeChatSurvey/device.jsp\""    									
+    									+ "\"url\":\"http://www.amutech.net/WeChatSurvey/device.jsp\""    									
     								+ "}"
     							+ "]}"
     						+ "]"
@@ -547,9 +551,44 @@ public class WeChatHandler {
 			String token = HttpRequest.sendGet(url,param);
 			mAccessToken = fetchTokenformJSONObject(token);
 			mCurAccessTokenStartTime = System.currentTimeMillis();
+			getJsApiTicket();
 			return mAccessToken;
 			
 		}
+		public String getJsApiTicket()
+		{
+	    	String url =  "https://api.weixin.qq.com/cgi-bin/ticket/getticket";
+	    	String param = "access_token="+ mAccessToken+"&type=jsapi";
+	    	String json = HttpRequest.sendGet(url,param);
+	    	log.d(json);
+	    	JSONObject jp = JSON.parseObject(json);
+	    	String errcode = jp.getString("errcode");
+	    	String errmsg = jp.getString("errmsg");
+	    	String ticket = jp.getString("ticket");
+	    	if(ticket == null){
+	    		log.e("get JsApiTicket fail: errcode: "+errcode+" errmsg: "+errmsg);
+	    		return null;
+	    	}
+	    	
+    		//save to file
+    		String ticket_file = "/tmp/JsApiTicket.wechat";
+    		FileOutputStream fos;
+			try {
+				fos = new FileOutputStream(ticket_file);
+				byte[] bytes = ticket.getBytes();
+				fos.write(bytes);
+				fos.close();
+			} catch (FileNotFoundException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+    		return ticket;
+				
+		}
+		
 		private String fetchTokenformJSONObject(String json)
 		{
 			String access_token = null;
@@ -757,6 +796,9 @@ public class WeChatHandler {
 				  time,    msgType,    devicetype,
 				  deviceid,devicestatus);
     	return resultStr;
+    }
+    public void syncAccessToken(){
+    	mAccessToken.getAccessToken();
     }
 }
 
