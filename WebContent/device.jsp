@@ -105,7 +105,7 @@ for (Map.Entry entry : ret.entrySet()) {
 String timestamp = ret.get("timestamp");
 String nonceStr = ret.get("nonceStr"); 
 String signature = ret.get("signature"); 
-String appId = "wx344a43b36f5ef1c6";
+String appId = "wxed078c433980b3f6";
 %>
 <!DOCTYPE html>
 <html>
@@ -159,6 +159,7 @@ String appId = "wx344a43b36f5ef1c6";
 		</article>
 		<article class="int_lianwanbutton">
 			<section class="set_button"><a href="javascript:scanQrcode();">扫描设备</a></section>
+			<script src="http://libs.baidu.com/jquery/1.8.2/jquery.min.js" ></script>
 		</article>
 	</article>
 	
@@ -217,6 +218,8 @@ String appId = "wx344a43b36f5ef1c6";
         'configWXDeviceWiFi',
         'openWXDeviceLib',
         'closeWXDeviceLib',
+        'getWXDeviceInfos',       
+        
       ]
   });
 	

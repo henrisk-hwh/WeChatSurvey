@@ -396,12 +396,12 @@ public class WeChatHandler {
     								+ "{"
     									+ "\"type\":\"view\","
     									+ "\"name\":\"test\","
-    									+ "\"url\":\"http://www.amutech.net/WeChatSurvey/index.html\""
+    									+ "\"url\":\"http://114.215.158.131/WeChatSurvey/device.jsp\""
     								+ "},"
     								+ "{"
     									+ "\"type\":\"view\","
     									+ "\"name\":\"联系我们\","
-    									+ "\"url\":\"http://www.amutech.net/WeChatSurvey/device.jsp\""    									
+    									+ "\"url\":\"http://we.china-ota.com/WeChatSurvey/device.jsp\""    									
     								+ "}"
     							+ "]}"
     						+ "]"
@@ -494,12 +494,12 @@ public class WeChatHandler {
 	{
 				
 		//芯智慧服务号相关id
-		//private static final String AppId = "wx96af4e9cb2a6ab51";
-		//private static final String Appsecret = "76dcf6b99c4ef85683ef90787ee915af";
+		private static final String AppId = "wxed078c433980b3f6";
+		private static final String Appsecret = "d693a8e5c0a55de372ea0ce9b8e93ebf";
 		
 		//测试号相关id
-		private static final String AppId = "wx344a43b36f5ef1c6";
-		private static final String Appsecret = "b6108a59b5e413c48080892d5561fcdd";
+		//private static final String AppId = "wx344a43b36f5ef1c6";
+		//private static final String Appsecret = "b6108a59b5e413c48080892d5561fcdd";
 		
 		private static final String GrantType = "client_credential";		
 		

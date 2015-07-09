@@ -61,7 +61,7 @@ public class WeChatSurvey extends HttpServlet implements SocketConnection.Connec
 	
 	public static final String TOKEN = "henrisktest";
 	public static final String CONTENT_TYPE="text/html;charset=utf-8";
-	public static final String DEVICE_TYPE="gh_206febbb4f15";
+	public static final String DEVICE_TYPE="gh_270bbe8a5791";
 	public MYSQLDB mSQL = null;
 	public SocketConnection mSocketConnection = null;
 	public int mCount = 0;
